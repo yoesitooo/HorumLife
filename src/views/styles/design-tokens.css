@@ -1,0 +1,78 @@
+:root {
+  /* Dark Claymorphism Palette */
+  --bg-main: #0D0D12;
+  --bg-card: #1A1A24;
+  --bg-nav: rgba(26, 26, 36, 0.7); /* For Glassmorphism */
+  
+  /* Text */
+  --text-primary: #FFFFFF;
+  --text-secondary: #A0A0B0;
+  
+  /* Solo Leveling Accents */
+  --accent-blue: #00F0FF;
+  --accent-green: #39FF14;
+  --accent-purple: #B500FF;
+
+  /* Shadows for 3D Tactile Effect (Claymorphism) */
+  --shadow-out: 8px 8px 16px rgba(0, 0, 0, 0.6), -4px -4px 12px rgba(45, 45, 60, 0.3);
+  --shadow-in: inset 6px 6px 12px rgba(0, 0, 0, 0.8), inset -4px -4px 8px rgba(45, 45, 60, 0.2);
+  
+  /* Glow effects */
+  --glow-blue: 0 0 15px rgba(0, 240, 255, 0.5);
+  --glow-green: 0 0 15px rgba(57, 255, 20, 0.5);
+  --glow-purple: 0 0 15px rgba(181, 0, 255, 0.5);
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', Courier, monospace;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Glassmorphism utility */
+.glass {
+  background: var(--bg-nav);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Claymorphism card */
+.clay-card {
+  background: var(--bg-card);
+  border-radius: 20px;
+  box-shadow: var(--shadow-out);
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.clay-card:active {
+  box-shadow: var(--shadow-in);
+  transform: scale(0.98);
+}
+
+/* Glowing borders */
+.glow-border-blue {
+  border-color: var(--accent-blue);
+  box-shadow: var(--shadow-out), var(--glow-blue);
+}
+.glow-border-green {
+  border-color: var(--accent-green);
+  box-shadow: var(--shadow-out), var(--glow-green);
+}
+.glow-border-purple {
+  border-color: var(--accent-purple);
+  box-shadow: var(--shadow-out), var(--glow-purple);
+}
+
+.mono-text {
+  font-family: var(--font-mono);
+}
