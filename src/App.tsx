@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BottomNavigation } from './views/components/BottomNavigation';
 import { HabitsView } from './views/pages/HabitsView';
 import { FinancesView } from './views/pages/FinancesView';
+import { EducationView } from './views/pages/EducationView';
 import './views/styles/design-tokens.css';
 
 function App() {
@@ -15,7 +16,7 @@ function App() {
       case 'finances':
         return <FinancesView />;
       case 'university':
-        return <div style={styles.placeholder}><h2>Universidad</h2><p>Fase 4: Próximamente</p></div>;
+        return <EducationView />;
       default:
         return <HabitsView />;
     }
