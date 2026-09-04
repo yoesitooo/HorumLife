@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BottomNavigation } from './views/components/BottomNavigation';
 import { HabitsView } from './views/pages/HabitsView';
+import { FinancesView } from './views/pages/FinancesView';
 import './views/styles/design-tokens.css';
 
 function App() {
@@ -12,7 +13,7 @@ function App() {
       case 'habits':
         return <HabitsView />;
       case 'finances':
-        return <div style={styles.placeholder}><h2>Finanzas</h2><p>Fase 3: Próximamente</p></div>;
+        return <FinancesView />;
       case 'university':
         return <div style={styles.placeholder}><h2>Universidad</h2><p>Fase 4: Próximamente</p></div>;
       default:
@@ -21,8 +22,8 @@ function App() {
   };
 
   return (
-    <div style={styles.appContainer}>
-      <main style={styles.mainContent}>
+    <div className="app-container">
+      <main className="main-content">
         {renderView()}
       </main>
       <BottomNavigation currentView={currentView} onViewChange={setCurrentView} />
@@ -31,19 +32,6 @@ function App() {
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  appContainer: {
-    width: '100vw',
-    height: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden',
-    backgroundColor: 'var(--bg-main)',
-  },
-  mainContent: {
-    flex: 1,
-    overflowY: 'auto',
-    position: 'relative',
-  },
   placeholder: {
     display: 'flex',
     flexDirection: 'column',
