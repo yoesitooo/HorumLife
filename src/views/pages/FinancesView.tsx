@@ -3,7 +3,8 @@ import { FinanceService } from '../../kernel/services/FinanceService';
 import type { BudgetConfig, BankTransaction, Subscription, FinanceEpicQuest } from '../../models/core';
 import { BudgetRingCard } from '../components/BudgetRingCard';
 import { TransactionItem } from '../components/TransactionItem';
-import { Inbox, CheckCircle2, Zap, Target, Smartphone } from 'lucide-react';
+import { AddTransactionModal, AddSubscriptionModal, AddEpicQuestModal, BudgetSettingsModal } from '../components/FinanceModals';
+import { Inbox, CheckCircle2, Zap, Target, Smartphone, Plus, Settings, PieChart } from 'lucide-react';
 import '../styles/design-tokens.css';
 
 export const FinancesView: React.FC = () => {
@@ -13,6 +14,12 @@ export const FinancesView: React.FC = () => {
   const [transactions, setTransactions] = useState<BankTransaction[]>(() => financeService.getTransactions());
   const [subscriptions, setSubscriptions] = useState<Subscription[]>(() => financeService.getSubscriptions());
   const [epicQuests, setEpicQuests] = useState<FinanceEpicQuest[]>(() => financeService.getEpicQuests());
+  
+  // Modal states
+  const [isTxModalOpen, setIsTxModalOpen] = useState(false);
+  const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+  const [isQuestModalOpen, setIsQuestModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   useEffect(() => {
     const unsubscribe = financeService.subscribe((newBudget, newTxs, newSubs, newQuests) => {
@@ -51,66 +58,122 @@ export const FinancesView: React.FC = () => {
             <h1 style={styles.title}>Finanzas</h1>
             <p style={styles.subtitle}>Gestión Inteligente</p>
           </div>
-          <button style={styles.simButton} onClick={simulateSms}>
-            <Smartphone size={16} /> SMS
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button style={styles.simButton} onClick={simulateSms}>
+              <Smartphone size={16} /> SMS
+            </button>
+            <button style={{...styles.simButton, backgroundColor: 'rgba(255,255,255,0.1)', color: 'var(--text-primary)'}} onClick={() => setIsSettingsModalOpen(true)}>
+              <Settings size={18} />
+            </button>
+          </div>
         </div>
       </header>
 
       <BudgetRingCard budget={budget} />
-
-      {epicQuests.length > 0 && (
+      
+      {/* Category Charts */}
+      {budget.categoryLimits && Object.keys(budget.categoryLimits).length > 0 && (
         <section style={styles.section}>
           <div style={styles.sectionHeader}>
+            <PieChart size={20} color="var(--accent-blue)" />
+            <h3 style={styles.sectionTitle}>Desglose del Presupuesto</h3>
+          </div>
+          <div style={styles.chartContainer}>
+            {Object.entries(budget.categoryLimits).map(([cat, limit]) => {
+              // Calculate how much has been spent in this category
+              const spent = approvedTxs.filter(t => t.category === cat).reduce((sum, t) => sum + t.amount, 0);
+              const percentage = Math.min((spent / limit) * 100, 100);
+              
+              let barColor = 'var(--accent-green)';
+              if (percentage > 70) barColor = 'var(--accent-orange)';
+              if (percentage > 90) barColor = 'var(--accent-red)';
+              
+              return (
+                <div key={cat} style={{ marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '4px' }}>
+                    <span style={{ textTransform: 'capitalize', color: 'var(--text-primary)', fontWeight: 500 }}>{cat}</span>
+                    <span style={{ color: 'var(--text-secondary)' }}>${spent.toLocaleString()} / ${limit.toLocaleString()}</span>
+                  </div>
+                  <div style={styles.progressBarBg}>
+                    <div style={{ ...styles.progressBarFill, width: `${percentage}%`, backgroundColor: barColor }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      <section style={styles.section}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Target size={20} color="var(--accent-purple)" />
             <h3 style={styles.sectionTitle}>Misión Épica</h3>
           </div>
-          {epicQuests.map(quest => {
-            const progress = (quest.currentAmount / quest.targetAmount) * 100;
-            return (
-              <div key={quest.id} style={styles.questCard}>
-                <div style={styles.questHeader}>
-                  <span style={styles.questTitle}>{quest.title}</span>
-                  <span style={styles.questReward}>+{quest.rewardXp} XP</span>
-                </div>
-                <div style={styles.progressBarBg}>
-                  <div style={{ ...styles.progressBarFill, width: `${Math.min(progress, 100)}%` }} />
-                </div>
-                <div style={styles.questFooter}>
-                  <span>${quest.currentAmount.toLocaleString()}</span>
-                  <span>${quest.targetAmount.toLocaleString()}</span>
-                </div>
+          <button style={styles.addBtn} onClick={() => setIsQuestModalOpen(true)}>
+            <Plus size={16} color="var(--text-primary)" />
+          </button>
+        </div>
+        {epicQuests.length === 0 && (
+          <div style={styles.emptyState}>
+            <p>No tienes metas financieras activas.</p>
+            <button style={{...styles.simButton, marginTop: '8px', color: 'var(--accent-purple)', backgroundColor: 'rgba(191, 90, 242, 0.15)'}} onClick={() => setIsQuestModalOpen(true)}>+ Crear Misión</button>
+          </div>
+        )}
+        {epicQuests.map(quest => {
+          const progress = (quest.currentAmount / quest.targetAmount) * 100;
+          return (
+            <div key={quest.id} style={styles.questCard}>
+              <div style={styles.questHeader}>
+                <span style={styles.questTitle}>{quest.title}</span>
+                <span style={styles.questReward}>+{quest.rewardXp} XP</span>
               </div>
-            );
-          })}
-        </section>
-      )}
+              <div style={styles.progressBarBg}>
+                <div style={{ ...styles.progressBarFill, width: `${Math.min(progress, 100)}%` }} />
+              </div>
+              <div style={styles.questFooter}>
+                <span>${quest.currentAmount.toLocaleString()}</span>
+                <span>${quest.targetAmount.toLocaleString()}</span>
+              </div>
+            </div>
+          );
+        })}
+      </section>
 
-      {subscriptions.length > 0 && (
-        <section style={styles.section}>
-          <div style={styles.sectionHeader}>
+      <section style={styles.section}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Zap size={20} color="var(--accent-blue)" />
             <h3 style={styles.sectionTitle}>Efectos Pasivos (Suscripciones)</h3>
           </div>
-          <div style={styles.list}>
-            {subscriptions.map(sub => (
-              <div key={sub.id} style={styles.subItem}>
-                <div>
-                  <div style={styles.subName}>{sub.name}</div>
-                  <div style={styles.subCost}>${sub.cost.toLocaleString()} / mes</div>
-                </div>
-                <div style={{
-                  ...styles.subBadge,
-                  backgroundColor: sub.effect === 'buff' ? 'rgba(48, 209, 88, 0.2)' : 'rgba(255, 69, 58, 0.2)',
-                  color: sub.effect === 'buff' ? 'var(--accent-green)' : 'var(--accent-red)'
-                }}>
-                  {sub.effect === 'buff' ? `Buff (+${sub.xpBonus}XP)` : 'Debuff (Drena)'}
-                </div>
-              </div>
-            ))}
+          <button style={styles.addBtn} onClick={() => setIsSubModalOpen(true)}>
+            <Plus size={16} color="var(--text-primary)" />
+          </button>
+        </div>
+        {subscriptions.length === 0 && (
+          <div style={styles.emptyState}>
+            <p>No has registrado suscripciones.</p>
+            <button style={{...styles.simButton, marginTop: '8px', color: 'var(--accent-blue)', backgroundColor: 'rgba(10, 132, 255, 0.15)'}} onClick={() => setIsSubModalOpen(true)}>+ Añadir Suscripción</button>
           </div>
-        </section>
-      )}
+        )}
+        <div style={styles.list}>
+          {subscriptions.map(sub => (
+            <div key={sub.id} style={styles.subItem}>
+              <div>
+                <div style={styles.subName}>{sub.name}</div>
+                <div style={styles.subCost}>${sub.cost.toLocaleString()} / mes</div>
+              </div>
+              <div style={{
+                ...styles.subBadge,
+                backgroundColor: sub.effect === 'buff' ? 'rgba(48, 209, 88, 0.2)' : 'rgba(255, 69, 58, 0.2)',
+                color: sub.effect === 'buff' ? 'var(--accent-green)' : 'var(--accent-red)'
+              }}>
+                {sub.effect === 'buff' ? `Buff (+${sub.xpBonus}XP)` : 'Debuff (Drena)'}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <section style={styles.section}>
         <div style={styles.sectionHeader}>
@@ -159,6 +222,23 @@ export const FinancesView: React.FC = () => {
 
       {/* Spacer for bottom navigation */}
       <div style={{height: '110px'}}></div>
+
+      {/* FAB to add manual transaction */}
+      <button style={styles.fab} onClick={() => setIsTxModalOpen(true)}>
+        <Plus size={24} color="#fff" />
+      </button>
+
+      {/* Modals */}
+      <AddTransactionModal isOpen={isTxModalOpen} onClose={() => setIsTxModalOpen(false)} />
+      <AddSubscriptionModal isOpen={isSubModalOpen} onClose={() => setIsSubModalOpen(false)} />
+      <AddEpicQuestModal isOpen={isQuestModalOpen} onClose={() => setIsQuestModalOpen(false)} />
+      <BudgetSettingsModal 
+        isOpen={isSettingsModalOpen} 
+        onClose={() => setIsSettingsModalOpen(false)} 
+        initialIncome={budget.totalIncome} 
+        initialSavings={budget.targetSavings} 
+        initialLimits={budget.categoryLimits || { 'ocio': 200000, 'transporte': 150000, 'delivery': 100000 }} 
+      />
     </div>
   );
 };
@@ -304,5 +384,38 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: '8px',
     fontSize: '12px',
     fontWeight: 700,
+  },
+  addBtn: {
+    background: 'rgba(255,255,255,0.1)',
+    border: 'none',
+    borderRadius: '50%',
+    width: '28px',
+    height: '28px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer'
+  },
+  fab: {
+    position: 'fixed',
+    bottom: '90px',
+    right: '20px',
+    width: '56px',
+    height: '56px',
+    borderRadius: '28px',
+    backgroundColor: 'var(--accent-orange)',
+    border: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: '0 4px 12px rgba(255, 159, 10, 0.4)',
+    cursor: 'pointer',
+    zIndex: 100
+  },
+  chartContainer: {
+    background: 'var(--glass-bg)',
+    border: '1px solid var(--glass-border)',
+    borderRadius: '16px',
+    padding: '16px',
   }
 };

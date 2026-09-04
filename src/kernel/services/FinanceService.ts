@@ -202,4 +202,69 @@ export class FinanceService {
     this.storage.set(TRANSACTIONS_STORAGE_KEY, [newTx, ...txs]);
     this.notifyListeners();
   }
+
+  // --- NEW METHODS FOR FORMS ---
+  public addSubscription(name: string, cost: number, category: string, effect: 'buff' | 'debuff', xpBonus?: number) {
+    const subs = this.getSubscriptions();
+    const newSub: Subscription = {
+      id: 'sub_' + Date.now(),
+      name,
+      cost,
+      category,
+      effect,
+      xpBonus
+    };
+    this.storage.set(SUBSCRIPTIONS_STORAGE_KEY, [...subs, newSub]);
+    this.notifyListeners();
+  }
+
+  public addEpicQuest(title: string, targetAmount: number, rewardXp: number) {
+    const quests = this.getEpicQuests();
+    const newQuest: FinanceEpicQuest = {
+      id: 'fq_' + Date.now(),
+      title,
+      targetAmount,
+      currentAmount: 0,
+      rewardXp
+    };
+    this.storage.set(QUESTS_STORAGE_KEY, [...quests, newQuest]);
+    this.notifyListeners();
+  }
+
+  public addManualTransaction(amount: number, merchant: string, category: BankTransaction['category']) {
+    const txs = this.getTransactions();
+    const newTx: BankTransaction = {
+      id: 'tx_man_' + Date.now(),
+      amount,
+      merchant,
+      category,
+      isAutoDetected: false,
+      approvalStatus: 'pending',
+      createdAt: new Date()
+    };
+    this.storage.set(TRANSACTIONS_STORAGE_KEY, [newTx, ...txs]);
+    this.notifyListeners();
+  }
+
+  public updateBudgetConfig(totalIncome: number, targetSavings: number, categoryLimits: Record<string, number>) {
+    const currentMonth = new Date().toISOString().substring(0, 7);
+    const budgets = this.storage.get<Record<string, BudgetConfig>>(BUDGET_STORAGE_KEY) || {};
+    
+    if (budgets[currentMonth]) {
+      budgets[currentMonth].totalIncome = totalIncome;
+      budgets[currentMonth].targetSavings = targetSavings;
+      budgets[currentMonth].categoryLimits = categoryLimits;
+    } else {
+      budgets[currentMonth] = {
+        monthId: currentMonth,
+        totalIncome,
+        targetSavings,
+        currentSpend: 0,
+        categoryLimits
+      };
+    }
+    
+    this.storage.set(BUDGET_STORAGE_KEY, budgets);
+    this.notifyListeners();
+  }
 }
