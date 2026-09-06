@@ -32,6 +32,8 @@ export class LifeOSService {
         { choreId: 'c1', title: 'Leer 10 páginas', decayIntervalDays: 1, lastCompletedAt: new Date(0), rewardCoins: 10 },
         { choreId: 'c2', title: 'Estiramiento 15m', decayIntervalDays: 1, lastCompletedAt: new Date(0), rewardCoins: 15 },
         { choreId: 'c3', title: 'Planear semana', decayIntervalDays: 7, lastCompletedAt: new Date(0), rewardCoins: 50 },
+        { choreId: 'c4', title: 'Meditar 10m', decayIntervalDays: 1, lastCompletedAt: new Date(0), rewardCoins: 15 },
+        { choreId: 'c5', title: 'Revisar Finanzas', decayIntervalDays: 2, lastCompletedAt: new Date(0), rewardCoins: 20 },
       ];
       this.storage.set(CHORES_STORAGE_KEY, defaultChores);
     }
@@ -259,26 +261,38 @@ export class LifeOSService {
 
   private generateDailyQuests() {
     const quests = this.getQuests();
-    const today = new Date().toDateString();
-    
     // Basic logic: if no quests generated today, create a random one
-    const activeQuests = quests.filter(q => !q.isCompleted && new Date(q.expiresAt).toDateString() === today);
+    const activeQuests = quests.filter(q => !q.isCompleted && new Date(q.expiresAt).getTime() > Date.now());
     
     if (activeQuests.length === 0) {
-      const expiration = new Date();
-      expiration.setHours(23, 59, 59);
+      const expirationDaily = new Date();
+      expirationDaily.setHours(23, 59, 59);
       
-      const newQuest: Quest = {
-        id: 'q_' + Date.now(),
-        title: 'Misión Diaria: Caminante',
-        description: 'Alcanza los 8000 pasos hoy.',
-        rewardCoins: 100,
-        rewardXp: { skill: 'fuerza', amount: 50 },
+      const newDailyQuest: Quest = {
+        id: 'q_daily_' + Date.now(),
+        title: 'Misión Diaria: Hidratación',
+        description: 'Bebe los 8 vasos de agua requeridos hoy.',
+        rewardCoins: 50,
+        rewardXp: { skill: 'vitalidad', amount: 20 },
         isCompleted: false,
-        expiresAt: expiration
+        expiresAt: expirationDaily
+      };
+
+      const expirationWeekly = new Date();
+      expirationWeekly.setDate(expirationWeekly.getDate() + 7);
+      expirationWeekly.setHours(23, 59, 59);
+
+      const newWeeklyQuest: Quest = {
+        id: 'q_weekly_' + Date.now(),
+        title: 'Misión Semanal: Ultra Enfoque',
+        description: 'Acumula más de 120 minutos de Deep Work en un solo día.',
+        rewardCoins: 200,
+        rewardXp: { skill: 'intelecto', amount: 100 },
+        isCompleted: false,
+        expiresAt: expirationWeekly
       };
       
-      this.storage.set(QUESTS_STORAGE_KEY, [...quests.filter(q => q.isCompleted === false), newQuest]);
+      this.storage.set(QUESTS_STORAGE_KEY, [...quests.filter(q => q.isCompleted === false), newDailyQuest, newWeeklyQuest]);
     }
   }
 
@@ -287,9 +301,14 @@ export class LifeOSService {
     let updated = false;
     
     quests.forEach(q => {
-      if (!q.isCompleted) {
-        // Hardcoded quest checks based on title (in a real app, use quest types)
-        if (q.title.includes('Caminante') && status.stepsCount >= 8000) {
+      if (!q.isCompleted && new Date(q.expiresAt).getTime() > Date.now()) {
+        if (q.title.includes('Hidratación') && status.waterGlasses >= 8) {
+          q.isCompleted = true;
+          this.addCoins(q.rewardCoins);
+          this.addXP(q.rewardXp.skill, q.rewardXp.amount);
+          updated = true;
+        }
+        if (q.title.includes('Ultra Enfoque') && status.deepWorkMinutes >= 120) {
           q.isCompleted = true;
           this.addCoins(q.rewardCoins);
           this.addXP(q.rewardXp.skill, q.rewardXp.amount);

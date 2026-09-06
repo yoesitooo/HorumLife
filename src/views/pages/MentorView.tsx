@@ -174,6 +174,7 @@ const styles: Record<string, React.CSSProperties> = {
     flexDirection: 'column',
     height: '100%',
     padding: '24px 20px',
+    paddingBottom: '100px', // Prevent BottomNav from hiding input
   },
   header: {
     display: 'flex',

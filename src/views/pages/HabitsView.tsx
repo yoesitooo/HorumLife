@@ -153,6 +153,21 @@ export const HabitsView: React.FC = () => {
 
       {/* Grid of Square Widgets */}
       <section style={styles.metricsGrid}>
+        <LifeMetricCard 
+          title="Lectura (+15 XP)"
+          value="Pendiente"
+          currentValue={0}
+          maxValue={1}
+          icon={<Star size={28} color="var(--text-primary)" />}
+          fillColor="var(--glass-highlight)"
+          accentColor="var(--text-primary)"
+          rewardLabel="+10 🪙"
+          onClick={() => {
+            lifeService.addXP('intelecto', 15);
+            lifeService.addCoins(10);
+            alert("¡Lectura registrada! +15 XP Intelecto");
+          }}
+        />
 
         <LifeMetricCard 
           title="Agua (+10 XP)"
