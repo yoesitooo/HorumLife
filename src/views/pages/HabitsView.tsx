@@ -5,7 +5,7 @@ import type { DailyLifeStatus, Chore, PlayerProfile, Quest, Reward } from '../..
 import { LifeMetricCard } from '../components/LifeMetricCard';
 import { RPGStatsCard } from '../components/RPGStatsCard';
 import { RewardStoreModal } from '../components/RewardStoreModal';
-import { Activity, Droplet, Dumbbell, Brain, CheckCircle2, Circle, Coins, Battery, Target, Star, CloudDownload, LogOut, Bell } from 'lucide-react';
+import { Droplet, Dumbbell, Brain, CheckCircle2, Circle, Coins, Battery, Target, Star, CloudDownload, LogOut, Bell } from 'lucide-react';
 import { StorageService } from '../../kernel/services/StorageService';
 import { firebaseService } from '../../kernel/services/FirebaseService';
 import { NotificationService } from '../../kernel/services/NotificationService';
