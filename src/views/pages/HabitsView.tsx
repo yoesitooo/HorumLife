@@ -5,8 +5,9 @@ import type { DailyLifeStatus, Chore, PlayerProfile, Quest, Reward } from '../..
 import { LifeMetricCard } from '../components/LifeMetricCard';
 import { RPGStatsCard } from '../components/RPGStatsCard';
 import { RewardStoreModal } from '../components/RewardStoreModal';
-import { Activity, Droplet, Dumbbell, Brain, CheckCircle2, Circle, Coins, Battery, Target, Star, CloudDownload } from 'lucide-react';
+import { Activity, Droplet, Dumbbell, Brain, CheckCircle2, Circle, Coins, Battery, Target, Star, CloudDownload, LogOut } from 'lucide-react';
 import { StorageService } from '../../kernel/services/StorageService';
+import { firebaseService } from '../../kernel/services/FirebaseService';
 import '../styles/design-tokens.css';
 
 const weeklyHistory = [
@@ -74,8 +75,11 @@ export const HabitsView: React.FC = () => {
   const activeQuests = quests.filter(q => new Date(q.expiresAt).toDateString() === new Date().toDateString());
 
   const handleSyncFromCloud = async () => {
-    // Show some loading indicator if desired, for now just sync
     await StorageService.getInstance().syncFromCloud();
+  };
+
+  const handleSignOut = async () => {
+    await firebaseService.signOut();
   };
 
   return (
@@ -94,6 +98,9 @@ export const HabitsView: React.FC = () => {
           <button style={styles.storeBtn} onClick={() => setIsStoreOpen(true)}>
             <Coins size={16} color="var(--accent-orange)" />
             <span style={styles.coinsText}>{profile.horumCoins}</span>
+          </button>
+          <button style={styles.storeBtn} onClick={handleSignOut} title="Cerrar Sesión">
+            <LogOut size={16} color="var(--accent-red)" />
           </button>
         </div>
       </div>

@@ -6,7 +6,7 @@ const BUDGET_STORAGE_KEY = 'finance_budget';
 const TRANSACTIONS_STORAGE_KEY = 'finance_transactions';
 const SUBSCRIPTIONS_STORAGE_KEY = 'finance_subscriptions';
 const QUESTS_STORAGE_KEY = 'finance_epic_quests';
-const GOOGLE_APPS_SCRIPT_URL = ""; // PEGA AQUÍ TU URL DE LA APLICACIÓN WEB DE GOOGLE APPS SCRIPT
+const GOOGLE_APPS_SCRIPT_URL = import.meta.env.VITE_GOOGLE_SHEETS_WEBHOOK_URL || "";
 
 export class FinanceService {
   private static instance: FinanceService;
@@ -100,11 +100,12 @@ export class FinanceService {
   }
 
   public simulateIncomingTransaction(amount: number, merchant: string, category: BankTransaction['category']) {
+    if (!amount || amount <= 0 || !merchant?.trim()) return;
     const txs = this.getTransactions();
     const newTx: BankTransaction = {
       id: 'tx_sim_' + Date.now(),
       amount,
-      merchant,
+      merchant: merchant.trim().substring(0, 100),
       category,
       isAutoDetected: true,
       approvalStatus: 'pending',
@@ -183,14 +184,15 @@ export class FinanceService {
   }
 
   public addIRLPurchase(amount: number, merchant: string, category: BankTransaction['category']) {
+    if (!amount || amount <= 0 || !merchant?.trim()) return;
     const txs = this.getTransactions();
     const newTx: BankTransaction = {
       id: 'tx_irl_' + Date.now(),
       amount,
-      merchant,
+      merchant: merchant.trim().substring(0, 100),
       category,
       isAutoDetected: false,
-      approvalStatus: 'approved', // already approved because we used coins
+      approvalStatus: 'approved',
       createdAt: new Date()
     };
     
@@ -262,11 +264,14 @@ export class FinanceService {
   }
 
   public addManualTransaction(amount: number, merchant: string, category: BankTransaction['category']) {
+    if (!amount || amount <= 0 || !merchant?.trim()) return;
+    const validCategories: BankTransaction['category'][] = ['mercado', 'transporte', 'delivery', 'suscripcion', 'ocio'];
+    if (!validCategories.includes(category)) return;
     const txs = this.getTransactions();
     const newTx: BankTransaction = {
       id: 'tx_man_' + Date.now(),
-      amount,
-      merchant,
+      amount: Math.min(amount, 999999999),
+      merchant: merchant.trim().substring(0, 100),
       category,
       isAutoDetected: false,
       approvalStatus: 'pending',
