@@ -173,8 +173,10 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
+    boxSizing: 'border-box',
     padding: '24px 20px',
     paddingBottom: '100px', // Prevent BottomNav from hiding input
+    position: 'relative',
   },
   header: {
     display: 'flex',
@@ -202,6 +204,7 @@ const styles: Record<string, React.CSSProperties> = {
     overflowY: 'auto',
     paddingBottom: '20px',
     paddingRight: '4px',
+    scrollBehavior: 'smooth',
   },
   botMessage: {
     background: 'rgba(255,255,255,0.05)',
@@ -214,6 +217,7 @@ const styles: Record<string, React.CSSProperties> = {
     lineHeight: 1.5,
     maxWidth: '85%',
     alignSelf: 'flex-start',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
   },
   userMessage: {
     background: 'linear-gradient(135deg, var(--accent-orange), #d97706)',
@@ -225,6 +229,7 @@ const styles: Record<string, React.CSSProperties> = {
     lineHeight: 1.5,
     maxWidth: '85%',
     alignSelf: 'flex-end',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
   },
   inputArea: {
     display: 'flex',
@@ -232,27 +237,32 @@ const styles: Record<string, React.CSSProperties> = {
     marginTop: 'auto',
     paddingTop: '16px',
     flexShrink: 0,
+    alignItems: 'center',
+    transition: 'all 0.3s ease',
   },
   input: {
     flex: 1,
-    background: 'rgba(255,255,255,0.05)',
+    background: 'rgba(255,255,255,0.08)',
     border: '1px solid var(--glass-border)',
     borderRadius: '24px',
-    padding: '12px 16px',
+    padding: '14px 20px',
     color: 'var(--text-primary)',
     fontSize: '15px',
     outline: 'none',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+    transition: 'border-color 0.3s ease, background 0.3s ease, transform 0.2s ease',
   },
   sendButton: {
     background: 'var(--accent-orange)',
     border: 'none',
     borderRadius: '50%',
-    width: '46px',
-    height: '46px',
+    width: '50px',
+    height: '50px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     cursor: 'pointer',
-    transition: 'opacity 0.2s',
+    transition: 'opacity 0.2s, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+    boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)',
   }
 };
