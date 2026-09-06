@@ -75,9 +75,9 @@ REGLAS:
     setIsLoading(true);
 
     try {
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      const apiKey = import.meta.env.VITE_AI_TOKEN;
       if (!apiKey) {
-        throw new Error("API Key no configurada en .env");
+        throw new Error("Token de IA no configurado en .env (VITE_AI_TOKEN)");
       }
 
       // Prepare history (excluding our hardcoded initial greeting to save tokens if we want, but it's fine to include)
