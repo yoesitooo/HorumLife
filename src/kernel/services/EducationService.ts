@@ -122,7 +122,7 @@ export class EducationService {
         coinReward = Math.floor(coinReward * 1.5);
       }
 
-      this.lifeOsService.addXp(xpReward);
+      this.lifeOsService.addXP('intelecto', xpReward);
       this.lifeOsService.addCoins(coinReward);
       this.notifyListeners();
     }
@@ -142,7 +142,7 @@ export class EducationService {
     };
     
     this.storage.set(SESSIONS_STORAGE_KEY, [...sessions, newSession]);
-    this.lifeOsService.addXp(xpEarned);
+    this.lifeOsService.addXP('intelecto', xpEarned);
     
     // Every 50 mins = 1 coin
     if (durationMinutes >= 50) {

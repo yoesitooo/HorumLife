@@ -1,3 +1,5 @@
+import { firebaseService } from './FirebaseService';
+
 export class StorageService {
   private static instance: StorageService;
 
@@ -23,9 +25,23 @@ export class StorageService {
   public set<T>(key: string, value: T): void {
     try {
       localStorage.setItem(key, JSON.stringify(value));
+      // Fire and forget cloud sync
+      firebaseService.syncDataToCloud(key, value).catch(console.error);
     } catch (error) {
       console.error(`Error writing to localStorage key: ${key}`, error);
     }
+  }
+
+  public async syncFromCloud(): Promise<void> {
+    const keys = ['lifeos_profile', 'finance_data', 'gym_sessions', 'education_data'];
+    for (const key of keys) {
+      const data = await firebaseService.loadDataFromCloud(key);
+      if (data) {
+        localStorage.setItem(key, JSON.stringify(data));
+      }
+    }
+    // Reload to rehydrate all singleton services with new localStorage data
+    window.location.reload();
   }
 
   public remove(key: string): void {

@@ -4,7 +4,7 @@ import { LifeOSService } from '../../kernel/services/LifeOSService';
 import type { Course, Assignment, StudySession } from '../../models/education';
 import type { PlayerProfile } from '../../models/core';
 import { AddCourseModal, AddAssignmentModal } from '../components/EducationModals';
-import { Brain, Target, BookOpen, Clock, CheckCircle2, Plus, AlertCircle } from 'lucide-react';
+import { Brain, Target, BookOpen, CheckCircle2, Plus, AlertCircle } from 'lucide-react';
 import '../styles/design-tokens.css';
 
 export const EducationView: React.FC = () => {
@@ -13,9 +13,9 @@ export const EducationView: React.FC = () => {
   
   const [courses, setCourses] = useState<Course[]>(() => eduService.getCourses());
   const [assignments, setAssignments] = useState<Assignment[]>(() => eduService.getAssignments());
-  const [sessions, setSessions] = useState<StudySession[]>(() => eduService.getStudySessions());
+  const [, setSessions] = useState<StudySession[]>(() => eduService.getStudySessions());
   
-  const [profile, setProfile] = useState<PlayerProfile>(() => lifeService.getProfile());
+  const [profile, setProfile] = useState<PlayerProfile>(() => lifeService.getPlayerProfile());
 
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
   const [isAssModalOpen, setIsAssModalOpen] = useState(false);
@@ -57,9 +57,9 @@ export const EducationView: React.FC = () => {
         <div style={styles.statCard}>
           <Brain size={24} color="var(--accent-blue)" style={{ marginBottom: '8px' }} />
           <div style={styles.statLabel}>Inteligencia (INT)</div>
-          <div style={styles.statValue}>Nvl. {profile.stats.intelligence.level}</div>
+          <div style={styles.statValue}>Nvl. {profile.skills.intelecto.level}</div>
           <div style={styles.progressBarBg}>
-             <div style={{ ...styles.progressBarFill, width: `${(profile.stats.intelligence.xp / profile.stats.intelligence.nextLevelXp) * 100}%`, backgroundColor: 'var(--accent-blue)' }} />
+             <div style={{ ...styles.progressBarFill, width: `${Math.min((profile.skills.intelecto.xp / (profile.skills.intelecto.level * 100)) * 100, 100)}%`, backgroundColor: 'var(--accent-blue)' }} />
           </div>
         </div>
         <div style={styles.statCard}>

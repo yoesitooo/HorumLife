@@ -5,7 +5,8 @@ import type { DailyLifeStatus, Chore, PlayerProfile, Quest, Reward } from '../..
 import { LifeMetricCard } from '../components/LifeMetricCard';
 import { RPGStatsCard } from '../components/RPGStatsCard';
 import { RewardStoreModal } from '../components/RewardStoreModal';
-import { Activity, Droplet, Dumbbell, Brain, CheckCircle2, Circle, Coins, Battery, Target, Star } from 'lucide-react';
+import { Activity, Droplet, Dumbbell, Brain, CheckCircle2, Circle, Coins, Battery, Target, Star, CloudDownload } from 'lucide-react';
+import { StorageService } from '../../kernel/services/StorageService';
 import '../styles/design-tokens.css';
 
 const weeklyHistory = [
@@ -72,6 +73,11 @@ export const HabitsView: React.FC = () => {
   const energyColor = status.energyLevel < 30 ? 'var(--accent-red)' : status.energyLevel < 70 ? 'var(--accent-orange)' : 'var(--accent-green)';
   const activeQuests = quests.filter(q => new Date(q.expiresAt).toDateString() === new Date().toDateString());
 
+  const handleSyncFromCloud = async () => {
+    // Show some loading indicator if desired, for now just sync
+    await StorageService.getInstance().syncFromCloud();
+  };
+
   return (
     <div style={styles.container}>
       
@@ -81,10 +87,15 @@ export const HabitsView: React.FC = () => {
           <Star size={16} color="var(--accent-orange)" fill="var(--accent-orange)" />
           <span style={styles.levelText}>Nv. {profile.skills.fuerza.level + profile.skills.intelecto.level + profile.skills.vitalidad.level + profile.skills.carisma.level - 3}</span>
         </div>
-        <button style={styles.storeBtn} onClick={() => setIsStoreOpen(true)}>
-          <Coins size={16} color="var(--accent-orange)" />
-          <span style={styles.coinsText}>{profile.horumCoins}</span>
-        </button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button style={styles.storeBtn} onClick={handleSyncFromCloud} title="Sincronizar desde la Nube">
+            <CloudDownload size={16} color="var(--accent-blue)" />
+          </button>
+          <button style={styles.storeBtn} onClick={() => setIsStoreOpen(true)}>
+            <Coins size={16} color="var(--accent-orange)" />
+            <span style={styles.coinsText}>{profile.horumCoins}</span>
+          </button>
+        </div>
       </div>
 
       {/* Weekly Progress Bar */}

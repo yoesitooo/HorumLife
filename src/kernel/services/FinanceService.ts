@@ -6,6 +6,7 @@ const BUDGET_STORAGE_KEY = 'finance_budget';
 const TRANSACTIONS_STORAGE_KEY = 'finance_transactions';
 const SUBSCRIPTIONS_STORAGE_KEY = 'finance_subscriptions';
 const QUESTS_STORAGE_KEY = 'finance_epic_quests';
+const GOOGLE_APPS_SCRIPT_URL = ""; // PEGA AQUÍ TU URL DE LA APLICACIÓN WEB DE GOOGLE APPS SCRIPT
 
 export class FinanceService {
   private static instance: FinanceService;
@@ -121,6 +122,9 @@ export class FinanceService {
       txs[txIndex].approvalStatus = 'approved';
       this.storage.set(TRANSACTIONS_STORAGE_KEY, txs);
       
+      // Sync to Google Sheets
+      this.syncToGoogleSheets(txs[txIndex]);
+      
       // Update Budget
       const currentMonth = new Date().toISOString().substring(0, 7);
       const budgets = this.storage.get<Record<string, BudgetConfig>>(BUDGET_STORAGE_KEY) || {};
@@ -199,8 +203,34 @@ export class FinanceService {
       this.storage.set(BUDGET_STORAGE_KEY, budgets);
     }
     
+    
     this.storage.set(TRANSACTIONS_STORAGE_KEY, [newTx, ...txs]);
+    this.syncToGoogleSheets(newTx);
     this.notifyListeners();
+  }
+
+  private async syncToGoogleSheets(tx: BankTransaction) {
+    if (!GOOGLE_APPS_SCRIPT_URL) return;
+    try {
+      await fetch(GOOGLE_APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          id: tx.id,
+          amount: tx.amount,
+          description: tx.merchant,
+          category: tx.category,
+          type: 'expense',
+          date: tx.createdAt
+        })
+      });
+      console.log('Synchronized with Google Sheets');
+    } catch (e) {
+      console.error('Failed to sync to Google Sheets', e);
+    }
   }
 
   // --- NEW METHODS FOR FORMS ---

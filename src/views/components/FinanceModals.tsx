@@ -120,7 +120,7 @@ export const AddTransactionModal: React.FC<{ isOpen: boolean; onClose: () => voi
 export const AddSubscriptionModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
   const [name, setName] = useState('');
   const [cost, setCost] = useState('');
-  const [category, setCategory] = useState('suscripcion');
+  const [category] = useState('suscripcion');
   const [effect, setEffect] = useState<'buff' | 'debuff'>('debuff');
   const [xpBonus, setXpBonus] = useState('0');
 

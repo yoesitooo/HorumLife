@@ -1,10 +1,10 @@
 import React from 'react';
-import { LayoutDashboard, Wallet, GraduationCap } from 'lucide-react';
+import { LayoutDashboard, Wallet, GraduationCap, Dumbbell } from 'lucide-react';
 import '../styles/design-tokens.css';
 
 interface BottomNavigationProps {
-  currentView: 'habits' | 'finances' | 'university';
-  onViewChange: (view: 'habits' | 'finances' | 'university') => void;
+  currentView: 'habits' | 'finances' | 'university' | 'gym';
+  onViewChange: (view: 'habits' | 'finances' | 'university' | 'gym') => void;
 }
 
 export const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentView, onViewChange }) => {
@@ -37,6 +37,16 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentView,
         <GraduationCap size={24} color={currentView === 'university' ? 'var(--accent-blue)' : 'var(--text-secondary)'} />
         <span style={currentView === 'university' ? { ...styles.label, color: 'var(--accent-blue)' } : styles.label}>
           Universidad
+        </span>
+      </button>
+
+      <button 
+        style={currentView === 'gym' ? { ...styles.navButton, ...styles.activeButton } : styles.navButton}
+        onClick={() => onViewChange('gym')}
+      >
+        <Dumbbell size={24} color={currentView === 'gym' ? 'var(--accent-red)' : 'var(--text-secondary)'} />
+        <span style={currentView === 'gym' ? { ...styles.label, color: 'var(--accent-red)' } : styles.label}>
+          Gimnasio
         </span>
       </button>
     </div>
