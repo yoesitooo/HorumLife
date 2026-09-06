@@ -5,20 +5,13 @@ import type { DailyLifeStatus, Chore, PlayerProfile, Quest, Reward } from '../..
 import { LifeMetricCard } from '../components/LifeMetricCard';
 import { RPGStatsCard } from '../components/RPGStatsCard';
 import { RewardStoreModal } from '../components/RewardStoreModal';
-import { Activity, Droplet, Dumbbell, Brain, CheckCircle2, Circle, Coins, Battery, Target, Star, CloudDownload, LogOut } from 'lucide-react';
+import { Activity, Droplet, Dumbbell, Brain, CheckCircle2, Circle, Coins, Battery, Target, Star, CloudDownload, LogOut, Bell } from 'lucide-react';
 import { StorageService } from '../../kernel/services/StorageService';
 import { firebaseService } from '../../kernel/services/FirebaseService';
+import { NotificationService } from '../../kernel/services/NotificationService';
 import '../styles/design-tokens.css';
 
-const weeklyHistory = [
-  { day: 'L', energy: 85 },
-  { day: 'M', energy: 60 },
-  { day: 'M', energy: 90 },
-  { day: 'J', energy: 40 },
-  { day: 'V', energy: 75 },
-  { day: 'S', energy: 20 },
-  { day: 'D', energy: null }, // Today
-];
+
 
 export const HabitsView: React.FC = () => {
   const lifeService = LifeOSService.getInstance();
@@ -28,6 +21,7 @@ export const HabitsView: React.FC = () => {
   const [chores, setChores] = useState<Chore[]>(() => lifeService.getChores());
   const [quests, setQuests] = useState<Quest[]>(() => lifeService.getQuests());
   const [rewards] = useState<Reward[]>(() => lifeService.getRewards());
+  const [weeklyHistory, setWeeklyHistory] = useState(() => lifeService.getWeeklyHistory());
   
   const [isStoreOpen, setIsStoreOpen] = useState(false);
 
@@ -37,6 +31,7 @@ export const HabitsView: React.FC = () => {
       setProfile({ ...newProfile });
       setChores([...newChores]);
       setQuests([...newQuests]);
+      setWeeklyHistory(lifeService.getWeeklyHistory());
     });
 
     return () => unsubscribe();
@@ -82,6 +77,10 @@ export const HabitsView: React.FC = () => {
     await firebaseService.signOut();
   };
 
+  const handleEnablePush = () => {
+    NotificationService.getInstance().requestPermission();
+  };
+
   return (
     <div style={styles.container}>
       
@@ -92,6 +91,9 @@ export const HabitsView: React.FC = () => {
           <span style={styles.levelText}>Nv. {profile.skills.fuerza.level + profile.skills.intelecto.level + profile.skills.vitalidad.level + profile.skills.carisma.level - 3}</span>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
+          <button style={styles.storeBtn} onClick={handleEnablePush} title="Activar Notificaciones Push">
+            <Bell size={16} color="var(--accent-orange)" />
+          </button>
           <button style={styles.storeBtn} onClick={handleSyncFromCloud} title="Sincronizar desde la Nube">
             <CloudDownload size={16} color="var(--accent-blue)" />
           </button>
@@ -151,16 +153,7 @@ export const HabitsView: React.FC = () => {
 
       {/* Grid of Square Widgets */}
       <section style={styles.metricsGrid}>
-        <LifeMetricCard 
-          title="Pasos"
-          value={`${status.stepsCount}`}
-          currentValue={status.stepsCount}
-          maxValue={8000}
-          icon={<Activity size={28} color="var(--text-primary)" />}
-          fillColor="var(--glass-highlight)"
-          accentColor="var(--text-primary)"
-        />
-        
+
         <LifeMetricCard 
           title="Agua (+10 XP)"
           value={`${status.waterGlasses} / 8`}

@@ -4,7 +4,7 @@ import type { BudgetConfig, BankTransaction, Subscription, FinanceEpicQuest } fr
 import { BudgetRingCard } from '../components/BudgetRingCard';
 import { TransactionItem } from '../components/TransactionItem';
 import { AddTransactionModal, AddSubscriptionModal, AddEpicQuestModal, BudgetSettingsModal } from '../components/FinanceModals';
-import { Inbox, CheckCircle2, Zap, Target, Smartphone, Plus, Settings, PieChart } from 'lucide-react';
+import { Inbox, CheckCircle2, Zap, Target, Plus, Settings, PieChart } from 'lucide-react';
 import '../styles/design-tokens.css';
 
 export const FinancesView: React.FC = () => {
@@ -31,13 +31,7 @@ export const FinancesView: React.FC = () => {
     return () => unsubscribe();
   }, [financeService]);
 
-  const simulateSms = () => {
-    financeService.simulateIncomingTransaction(
-      Math.floor(Math.random() * 50000) + 10000, 
-      ['Uber', 'Rappi', 'Cine Colombia', 'Starbucks'][Math.floor(Math.random() * 4)], 
-      ['transporte', 'delivery', 'ocio'][Math.floor(Math.random() * 3)] as any
-    );
-  };
+  // SMS integration will be implemented in the future when migrating to a native APK
 
   const handleApprove = (id: string) => {
     financeService.approveTransaction(id);
@@ -59,9 +53,7 @@ export const FinancesView: React.FC = () => {
             <p style={styles.subtitle}>Gestión Inteligente</p>
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <button style={styles.simButton} onClick={simulateSms}>
-              <Smartphone size={16} /> SMS
-            </button>
+            {/* <button style={styles.simButton}> <Smartphone size={16} /> SMS </button> */}
             <button style={{...styles.simButton, backgroundColor: 'rgba(255,255,255,0.1)', color: 'var(--text-primary)'}} onClick={() => setIsSettingsModalOpen(true)}>
               <Settings size={18} />
             </button>

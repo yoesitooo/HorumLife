@@ -37,22 +37,48 @@ export const GymView: React.FC = () => {
     });
   });
 
-  // Heatmap calculation (last 14 days)
+  // Chart calculation (last 14 days)
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const heatmapDays = [];
+  const chartDays = [];
   for (let i = 13; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
     
-    // Check if session exists on this day
-    const hasSession = sessions.some(s => {
+    const session = sessions.find(s => {
       const sDate = new Date(s.date);
       return sDate.getDate() === d.getDate() && sDate.getMonth() === d.getMonth() && sDate.getFullYear() === d.getFullYear();
     });
     
-    heatmapDays.push({ date: d, hasSession, isToday: i === 0 });
+    const val = session ? session.logs.length : 0;
+    chartDays.push({ date: d, value: val, isToday: i === 0, hasSession: !!session });
   }
+
+  const maxVal = Math.max(...chartDays.map(d => d.value), 1);
+  const chartWidth = 300;
+  const chartHeight = 80;
+  const chartPadding = 10;
+  
+  const chartPoints = chartDays.map((day, i) => {
+    const x = (i / (chartDays.length - 1)) * chartWidth;
+    const y = chartHeight - (day.value / maxVal) * (chartHeight - chartPadding*2) - chartPadding;
+    return { x, y, ...day };
+  });
+
+  const generateSmoothPath = (pts: typeof chartPoints) => {
+    if (pts.length === 0) return '';
+    let d = `M ${pts[0].x} ${pts[0].y}`;
+    for (let i = 1; i < pts.length; i++) {
+      const prev = pts[i - 1];
+      const curr = pts[i];
+      const cpX = (prev.x + curr.x) / 2;
+      d += ` C ${cpX} ${prev.y}, ${cpX} ${curr.y}, ${curr.x} ${curr.y}`;
+    }
+    return d;
+  };
+
+  const pathD = generateSmoothPath(chartPoints);
+  const areaD = `${pathD} L ${chartWidth} ${chartHeight} L 0 ${chartHeight} Z`;
 
   return (
     <div style={styles.container} className="ios-scroll">
@@ -113,18 +139,44 @@ export const GymView: React.FC = () => {
       </div>
 
       <h2 style={styles.sectionTitle}>Actividad (Últimos 14 días)</h2>
-      <div style={styles.heatmapContainer}>
-        {heatmapDays.map((day, idx) => (
-          <div 
-            key={idx} 
-            style={{ 
-              ...styles.heatmapBlock, 
-              backgroundColor: day.hasSession ? 'var(--accent-green)' : 'rgba(255,255,255,0.05)',
-              border: day.isToday ? '1px solid rgba(255,255,255,0.3)' : 'none'
-            }}
-            title={day.date.toLocaleDateString()}
-          />
-        ))}
+      <div style={{ background: 'rgba(255,255,255,0.02)', borderRadius: '16px', padding: '16px', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '24px' }}>
+        <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} style={{ width: '100%', height: '100px', overflow: 'visible' }}>
+          <defs>
+            <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--accent-green)" stopOpacity="0.4" />
+              <stop offset="100%" stopColor="var(--accent-green)" stopOpacity="0.0" />
+            </linearGradient>
+          </defs>
+          <path d={areaD} fill="url(#chartGradient)" />
+          <path d={pathD} fill="none" stroke="var(--accent-green)" strokeWidth="3" strokeLinecap="round" />
+          
+          {chartPoints.map((p, i) => (
+            p.hasSession && (
+              <circle 
+                key={i} 
+                cx={p.x} 
+                cy={p.y} 
+                r="4" 
+                fill="#1C1C1E" 
+                stroke="var(--accent-green)" 
+                strokeWidth="2" 
+              />
+            )
+          ))}
+          {/* Today indicator if no session */}
+          {!chartPoints[chartPoints.length-1].hasSession && (
+            <circle 
+              cx={chartPoints[chartPoints.length-1].x} 
+              cy={chartPoints[chartPoints.length-1].y} 
+              r="3" 
+              fill="rgba(255,255,255,0.3)" 
+            />
+          )}
+        </svg>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '8px' }}>
+          <span>{chartDays[0].date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}</span>
+          <span>Hoy</span>
+        </div>
       </div>
 
       <h2 style={styles.sectionTitle}>Historial</h2>

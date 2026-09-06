@@ -104,6 +104,32 @@ export class LifeOSService {
     return allStatuses[todayId];
   }
 
+  public getWeeklyHistory(): { day: string, energy: number | null }[] {
+    const history = [];
+    const days = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
+    const allStatuses = this.storage.get<Record<string, DailyLifeStatus>>(STATUS_STORAGE_KEY) || {};
+    
+    // We want the last 7 days ending with today.
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const dateId = d.toISOString().split('T')[0];
+      const dayStr = days[d.getDay()];
+      
+      if (i === 0) {
+        history.push({ day: dayStr, energy: null }); // Today is dynamic
+      } else {
+        const status = allStatuses[dateId];
+        history.push({ day: dayStr, energy: status ? status.energyLevel : 0 });
+      }
+    }
+    
+    return history;
+  }
+
   public updateTodayStatus(updates: Partial<DailyLifeStatus>): void {
     const todayId = new Date().toISOString().split('T')[0];
     const allStatuses = this.storage.get<Record<string, DailyLifeStatus>>(STATUS_STORAGE_KEY) || {};
