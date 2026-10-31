@@ -7,6 +7,8 @@
 ![Vite](https://img.shields.io/badge/Vite-PWA-646CFF?logo=vite&logoColor=white)
 ![Firebase](https://img.shields.io/badge/Firebase-Auth_·_Firestore-FFCA28?logo=firebase&logoColor=black)
 
+**🔗 Live demo: [horum-life.vercel.app](https://horum-life.vercel.app)** (Google Sign-In)
+
 > 🇪🇸 App de gestión personal gamificada: finanzas, gimnasio, estudio y hábitos con progresión tipo RPG y un mentor con IA (Gemini).
 
 ## Features
